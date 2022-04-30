@@ -55,7 +55,8 @@ o bot tem que estar em um servidor, e tambêm, você tem que ter um repositório
 `{'log': None, 'loja': {}, 'comandos': None}`
 #
 tambem é necessario instalar o python na sua maquina, você pode fazer a instalação [aqui](https://www.python.org/ftp/python/3.10.4/python-3.10.4-amd64.exe)
-logo após a instalação é só usar o comando `python main.py`
+logo após a instalação é só usar o comando 
+<br>`python main.py`
 #
 depois de instalar o python pode não funcionar, você precissa instalar as dependencias, use ocomando `pip install -r requirements.txt` na pasta do projeto
 #
