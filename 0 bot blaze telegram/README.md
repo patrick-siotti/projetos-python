@@ -57,3 +57,6 @@ ele funcionara na sua maquina, para funcionar em nuvem, basta colocalo em um ser
 #
 
 irei disponibilizar um link posteriormente para poder entrar em um servidor do telegram e ver o bot em ação!
+
+<p align='center'>meu discord:</p>
+<p align='center'>Purple-Senpai#7642</p>
