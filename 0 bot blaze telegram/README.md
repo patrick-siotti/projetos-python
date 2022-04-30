@@ -1,5 +1,5 @@
 <p align="center"><img src="https://user-images.githubusercontent.com/59841892/166119077-2d9d3201-5922-415f-8490-bcece3db3364.png" height="300" width="300"></p>
-<h1 align="center"> bot blaze telegram </h1>
+<h1 align="center"> Double Kings </h1>
 
 meu primeiro projeto
 
