@@ -1,3 +1,4 @@
+<p align='center'><img src='https://user-images.githubusercontent.com/59841892/166122924-66d1cdf0-085c-4a7b-ab79-87e566c1051d.png' height="300" width="300"></p>
 <h1 align="center"> PROJETOS EM PYTHON </h1>
 
 meus projetos em python, desde os mais antigos até os mais atuais;
