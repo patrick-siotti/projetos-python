@@ -1,7 +1,13 @@
 # projetos_python
 
-meus projetos em python, desde os mais antigos até os mais atuais
+meus projetos em python, desde os mais antigos até os mais atuais;
 
-os projetos serão de forma crescente, então os mais atuais serão os com numero inicial mais alto
+os projetos serão de forma crescente, então os mais atuais serão os com numero inicial mais alto.
 
-próximo aprendizado: PyQt para criação de interface grafica pros programas
+# bot blaze telegram
+
+esse bot pega os resultados do site blaze, no jogo double, e indentifica se ouve algum padrão de jogo, caso ouver, ele manda uma mensagem para um grupo do telegram.
+
+# bot discord
+
+é um bot que simula um sistema de banco, com compra e venda de itens, podendo ser completamente configurado no próprio servidor do discord.
