@@ -1,6 +1,11 @@
 <p align="center"><img src="https://user-images.githubusercontent.com/59841892/172247448-bee8ac5a-5ae2-4321-9cc7-2ce222b3ea1c.png"></p>
 <h1 align="center"> analise das jogadas </h1>
 
+o programa ira, apartir de uma opção, analisar os jogos da mega sena ou da quina, e mostrar os resultados de suas pesquisas.
+Cada opção tem um intuito de analisar as sequencias ou mesmo numeros, para não ter peculiaridades nas jogadas, e assim, oumentar sua chance de acerto no jogo.
+
+as sequencias não são retiradas da web, para o programa poder ser executado mesmo offline
+
 - ver se a soma das unidades são iguais
 
 vai pegar cada dezena da sequencia, e separa-las em unidades, somando todas, vai fazer isso em cada jogo, e ver se tem alguma sequencia com a soma igual e ira retornar os valores
