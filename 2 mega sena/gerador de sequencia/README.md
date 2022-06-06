@@ -1,6 +1,9 @@
 <p align="center"><img src="https://user-images.githubusercontent.com/59841892/172259927-c8463fb8-64b4-4490-beca-bd8ac044a693.png"></p>
 <h1 align="center"> gerador de sequencia </h1>
 
+usado para gerar sequencias aleatória pro jogo da mega sena, os filtros se baseam em estatistica e probabilidade.
+Uma sequencia aleatória é gerada e então é passado pelos filtros escolhidos, as sequencias permitidas serão mostrada ao usuario.
+
 as sequencias não são retiradas da internet, pro programa poder ser executado mesmo offline
 
 filtro 1: retira os numeros das 3 ultimas sequencias da mega sena
