@@ -12,3 +12,15 @@ esse bot pega os resultados do site blaze, no jogo double, e indentifica se ouve
 # bot discord
 
 é um bot que simula um sistema de banco, com compra e venda de itens, podendo ser completamente configurado no próprio servidor do discord.
+
+# mega sena
+
+não é pego as sequencias pela web, para poder ser usado até sem wifi
+
+- gerador de sequencia
+
+o gerador gera uma série de sequencias da mega pra você jogar, com base em estatistica e probabilidade, tendo varios filtros para você escolher
+
+- analise de sequencias
+
+varias opções para você analizar as sequencias que já aconteceram, com varias opções de analise
