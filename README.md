@@ -15,8 +15,6 @@ esse bot pega os resultados do site blaze, no jogo double, e indentifica se ouve
 
 # mega sena
 
-não é pego as sequencias pela web, para poder ser usado até sem wifi
-
 - gerador de sequencia
 
 o gerador gera uma série de sequencias da mega pra você jogar, com base em estatistica e probabilidade, tendo varios filtros para você escolher
