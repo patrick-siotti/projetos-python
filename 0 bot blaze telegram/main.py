@@ -1,33 +1,35 @@
-# programa feito para retirada de infromações do site blaze do jogo double, as informações são revisadas, na tentativa de encontrar uma possivel entrada
+# variaveis faltando <token do bot, chat do grupo, chat de erros>
 
-# programa sem informações de chat nem bot
-
-# esse foi o primeiro projeto que fiz
-
+from time import sleep as sl, time
+from os import system as sys
 try: # importação dos pacotes
     from selenium import webdriver
     from selenium.webdriver.common.by import By
     from webdriver_manager.chrome import ChromeDriverManager
     from requests import get
-    from os import system as sys
-    from time import sleep as sl, time
+    import logging
 except Exception: # instalação dos pacotes não instalados
-    print('instalando os pacotes: requests, webdriver-manager, selenium e keyboard')
+    print('instalando os pacotes: requests, webdriver-manager, selenium e logging')
+    sl(3)
     sys('pip install requests')
     sys('pip install webdriver-manager')
     sys('pip install selenium')
-    sys('pip install keyboard')
+    sys('pip install logging')
     sys('cls')
-    print('reiniciando o programa...')
-    sys('python main.py')
+    input('Por favor, feche e reinicie o programa.')
     exit()
+
+CONFIGURACAO_DE_TESTE = False # coloque True para mandar mensagens das listas ao vivo
+
+logger = logging.getLogger()
 
 class TelegramBot(object):
     def __init__(self):
-        self.TOKEN = 'token do bot'
 
-        self.CHAT_ID = 'chat do grupo'
-        self.CHAT_ID_ERRO = 'chat de erros'
+        self.TOKEN = 'token do bot' # token do bot criado pelo botfather (não tire as aspas)
+
+        self.CHAT_ID = 'chat do grupo' # chat do grupo em que o bot vai ficar (não tire as aspas)
+        self.CHAT_ID_ERRO = 'chat de erros' # chat do seu pv, para mensagens de erro (não tire as aspas)
 
         self.enviaMensagem = lambda mesage: get(f'https://api.telegram.org/bot{self.TOKEN}/sendMessage?chat_id={self.CHAT_ID}&text={mesage}')
         self.enviaMensagemDeErro = lambda mesage: get(f'https://api.telegram.org/bot{self.TOKEN}/sendMessage?chat_id={self.CHAT_ID_ERRO}&text={mesage}')
@@ -43,21 +45,19 @@ class Site(object):
         self.loss = {} # erros
         self.confirm_cor = ''
         self.SITE = 'https://blaze.com/pt/games/double'
+        self.telegrambot = TelegramBot()
 
     def iniSite(self):
-        # telegrambot = TelegramBot()
 
         options = webdriver.ChromeOptions()
         options.add_argument('--headless')
 
-        self.navegador = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options) # instala os drivers automaticamente, e o site é aberto de forma "--headless", ou seja, escondido
+        self.navegador = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
         self.navegador.get(self.SITE)
 
         sys('cls')
         sys('@title Bot Double')
         print('Bot iniciado.')
-        print('mensagem para grupo free desativado.')
-        # telegrambot.enviaMensagem('Bot iniciado')
 
     def pegaCor(self):
         while True:
@@ -76,21 +76,24 @@ class Site(object):
                 pass
 
     def finais(self, cor):
-        telegrambot = TelegramBot()
 
-        # peço desculpa pelo if longo de mais akkak
+        sec0 = self.sec0
+        sec1 = self.sec1
+        sec2 = self.sec2
+        sec3 = self.sec3
+        sec4 = self.sec4
 
-        if len(self.sec0) == 4 and self.sec0[0] != self.confirm_cor or len(self.sec1) == 9 and self.sec1[8] == self.confirm_cor or len(self.sec2) == 5 and self.sec2[4] == self.confirm_cor or len(self.sec3) == 4 and self.sec3[3] == self.confirm_cor or len(self.sec4) == 5 and self.sec4[4] == self.confirm_cor:
-            telegrambot.enviaMensagem('Abortar missão ❗️') # previsão errada
+        if len(self.sec0) == 4 and self.sec0[0] != cor or len(self.sec1) == 9 and self.sec1[8] == cor or len(self.sec2) == 5 and self.sec2[4] == cor or len(self.sec3) == 4 and self.sec3[3] == cor or len(self.sec4) == 6 and self.sec4[4] == cor:
+            self.telegrambot.enviaMensagem('Abortar missão ❗️') # previsão errada
 
-        if len(self.sec0) > 4 and self.sec0[0] != self.confirm_cor or len(self.sec1) > 9 and self.sec1[9] != self.confirm_cor or len(self.sec2) > 5 and self.sec2[5] != self.confirm_cor or len(self.sec3) > 4 and self.sec3[4] != self.confirm_cor or len(self.sec4) > 5 and self.sec4[5] != self.confirm_cor:
-            telegrambot.enviaMensagem('Green ✅ 🤑') # previsão certa
+        if len(self.sec0) > 4 and self.sec0[0] != cor or len(self.sec1) > 9 and self.sec1[9] != cor or len(self.sec2) > 5 and self.sec2[5] != cor or len(self.sec3) > 4 and self.sec3[4] != cor or len(self.sec4) > 6 and self.sec4[5] != cor:
+            self.telegrambot.enviaMensagem('Green ✅ 🤑') # previsão certa
             self.green[f'green{len(self.green)}'] = int(time()) 
             for i in range(4+1):
                 exec(f'sec{i}.clear()')
 
-        elif len(self.sec0) > 4 and cor == 'branco' or len(self.sec1) > 9 and cor == 'branco' or len(self.sec2) > 5 and cor == 'branco' or len(self.sec3) > 4 and cor == 'branco' or len(self.sec4) > 5 and cor == 'branco':
-            telegrambot.enviaMensagem('Green ✅ 🤑') # previsão certa
+        elif len(self.sec0) > 4 and cor == 'branco' or len(self.sec1) > 9 and cor == 'branco' or len(self.sec2) > 5 and cor == 'branco' or len(self.sec3) > 4 and cor == 'branco' or len(self.sec4) > 6 and cor == 'branco':
+            self.telegrambot.enviaMensagem('Green ✅ 🤑') # previsão certa sendo branco
             self.green[f'green{len(self.green)}'] = int(time())
             for i in range(4+1):
                 exec(f'sec{i}.clear()')
@@ -105,7 +108,6 @@ class Site(object):
                 pass
 
     def jogadas(self, cor):
-        telegrambot = TelegramBot()
 
         def diferente(sec, n, cont=''): # se caso a cor atual for diferente da cor antiga
             if n+1 <= len(sec) and cont == '':
@@ -128,10 +130,10 @@ class Site(object):
                 if sec[-1] == cor:
                     sec.append(cor)
             if len(sec) == n+1:
-                if gale <= 3:
-                    telegrambot.enviaMensagem(f'Aviso vamos ao {gale}º gale 🍀')
-                if gale == 4:
-                    telegrambot.enviaMensagem('Não foi dessa vez, mas mantenha a calma!')
+                if gale <= 2:
+                    self.telegrambot.enviaMensagem(f'Aviso vamos ao {gale}º gale 🍀')
+                if gale == 3:
+                    self.telegrambot.enviaMensagem('Não foi dessa vez, mas mantenha a calma!')
                     self.loss[f'loss{len(self.loss)}'] = int(time())
                     sec.clear()
 
@@ -143,8 +145,9 @@ class Site(object):
             sec4 = self.sec4
             n = n-1
             for i in range(4+1):
-                exec(f'if len({sec}) > {n}:\n    if {sec} == sec{i}:\n        pass\n    else:\n        sec{i}.clear()')
+                exec(f'if len({sec}) > {n}:\n\tif {sec} == sec{i}:\n\t\tpass\n\telse:\n\t\tsec{i}.clear()')
                 # função encurtada usando exec, ela limpa as outras sequencias caso uma esteja em foco
+                # em foco é quando ela entrou no padrão, para n dar conflito ela é limpada
 
         foca('sec0', 4)
         if len(self.sec0) == 0:
@@ -153,7 +156,6 @@ class Site(object):
             if len(self.sec0) <= 4:
                 igual(self.sec0, 0)
             else:
-                addgale(self.sec0, 8, 4)
                 addgale(self.sec0, 7, 3)
                 addgale(self.sec0, 6, 2)
                 addgale(self.sec0, 5, 1)
@@ -162,7 +164,6 @@ class Site(object):
         if len(self.sec1) == 0:
             self.sec1.append(cor)
         else:
-            addgale(self.sec1, 13, 4)
             addgale(self.sec1, 12, 3)
             addgale(self.sec1, 11, 2)
             addgale(self.sec1, 10, 1)
@@ -181,7 +182,6 @@ class Site(object):
         if len(self.sec2) == 0:
             self.sec2.append(cor)
         else:
-            addgale(self.sec2, 9, 4)
             addgale(self.sec2, 8, 3)
             addgale(self.sec2, 7, 2)
             addgale(self.sec2, 6, 1)
@@ -191,12 +191,11 @@ class Site(object):
             diferente(self.sec2, 2, 3)
             igual(self.sec2, 1, 2)
             igual(self.sec2, 0, 1)
- 
+
         foca('sec3', 4) 
         if len(self.sec3) == 0:
             self.sec3.append(cor)
         else:
-            addgale(self.sec3, 8, 4)
             addgale(self.sec3, 7, 3)
             addgale(self.sec3, 6, 2)
             addgale(self.sec3, 5, 1)
@@ -206,15 +205,15 @@ class Site(object):
             diferente(self.sec3, 1, 2)
             diferente(self.sec3, 0, 1)
             
-        foca('sec4', 5) 
+        foca('sec4', 6) 
         if len(self.sec4) == 0:
             self.sec4.append(cor)
         else:
-            addgale(self.sec4, 9, 4)
             addgale(self.sec4, 8, 3)
             addgale(self.sec4, 7, 2)
             addgale(self.sec4, 6, 1)
             # gale ^
+            diferente(self.sec4, 5, 6)
             diferente(self.sec4, 4, 5)
             diferente(self.sec4, 3, 4)
             diferente(self.sec4, 2, 3)
@@ -222,78 +221,96 @@ class Site(object):
             diferente(self.sec4, 0, 1)
 
     def aviso(self, cor):
-        telegrambot = TelegramBot()
 
         if len(self.sec0) == 4 or len(self.sec1) == 9 or len(self.sec2) == 5 or len(self.sec3) == 4 or len(self.sec4) == 5:
-            telegrambot.enviaMensagem(f'Aviso! possivel entrada, favor aguardar.\nhttps://blaze.com/pt/games/double')
+            self.telegrambot.enviaMensagem(f'Aviso! possivel entrada, favor aguardar.\nhttps://blaze.com/pt/games/double')
 
         if len(self.sec0) == 5 or len(self.sec1) == 10 or len(self.sec2) == 6 or len(self.sec3) == 5 or len(self.sec4) == 6:
-            telegrambot.enviaMensagem(f'Aviso! entrada confirmada na cor {"🟥" if cor == "preto" else "⬛️"}')
+            self.telegrambot.enviaMensagem(f'Aviso! entrada confirmada na cor {"🟥" if cor == "preto" else "⬛️"}')
             self.confirm_cor = 'vermelho' if cor == 'preto' else 'preto'
 
         self.esperar()
 
 class Program(object):
     def __init__(self):
-        site = Site()
-        telegrambot = TelegramBot()
+
+        self.site = Site()
+        self.telegrambot = TelegramBot()
         self.texteNet = lambda: sys('ping google.com') # testa conexão
 
-        site.iniSite()
+        try:
+            self.site.iniSite()
+        except Exception as error:
+            sys('cls')
+            print('erro ao inicializar o site\nverifique sua conexão com a internet e tente novamente.')
+            print('para o funcionamento do bot, o google chrome deve estar instalado no seu computador.')
+            input()
+            exit()
 
         try:
             while True:
-                cor = site.pegaCor()
-                site.finais(cor)
-                site.jogadas(cor)
-                site.aviso(cor)
+                cor = self.site.pegaCor()
+                self.site.finais(cor)
+                self.site.jogadas(cor)
+                self.site.aviso(cor)
 
-                # telegrambot.enviaMensagem(site.sec0)
-                # telegrambot.enviaMensagem(site.sec1)
-                # telegrambot.enviaMensagem(site.sec2)
-                # telegrambot.enviaMensagem(site.sec3)
-                # telegrambot.enviaMensagem(site.sec4)
-                # telegrambot.enviaMensagem('.') # configuração de teste
+                if CONFIGURACAO_DE_TESTE == True:
+                    self.telegrambot.enviaMensagemDeErro(cor)
+                    self.telegrambot.enviaMensagemDeErro(self.site.sec0)
+                    self.telegrambot.enviaMensagemDeErro(self.site.sec1)
+                    self.telegrambot.enviaMensagemDeErro(self.site.sec2)
+                    self.telegrambot.enviaMensagemDeErro(self.site.sec3)
+                    self.telegrambot.enviaMensagemDeErro(self.site.sec4)
+                    self.telegrambot.enviaMensagemDeErro('.') # configuração de teste
 
                 self.optmizacaoGreenLoss()
             
         except KeyboardInterrupt:
-            while self.texteNet() == 1:
-                sl(5)    
+            print('\niniciando o fechamento do dia...')
 
-            if len(site.green) != 0 or len(site.loss) != 0:
-                telegrambot.enviaMensagem(f'Fechamento do dia:\n{len(site.green)} green{"s" if len(site.green) > 1 else ""} e {len(site.loss)} loss.')
+            if len(self.site.green) != 0 or len(self.site.loss) != 0:
+                self.telegrambot.enviaMensagem(f'Fechamento do dia:\n{len(self.site.green)} green{"s" if len(self.site.green) > 1 else ""} e {len(self.site.loss)} loss.')
+                print('fechamento enviado, ', end='')
+            else:
+                print('fechamento do dia zerado, ', end='')
+
+            print('finalizando programa.')
+            sl(3)
             exit()
 
         except Exception as error:
-            print(f'\nerro inesperado na execução do programa:\n{error}\n\ntentativa de reinicialização do programa...\n')
+            # print(f'\nerro inesperado na execução do programa:\n{error}\n\ntentativa de reinicialização do programa...\n')
+            print('ops, erro encontrado...')
             while self.texteNet() == 1:
                 sl(5)    
 
-            if len(site.green) != 0 or len(site.loss) != 0:
-                telegrambot.enviaMensagem(f'Fechamento do dia:\n{len(site.green)} green{"s" if len(site.green) > 1 else ""} e {len(site.loss)} loss.')
+            if len(self.site.green) != 0 or len(self.site.loss) != 0:
+                self.telegrambot.enviaMensagem(f'Fechamento do dia:\n{len(self.site.green)} green{"s" if len(self.site.green) > 1 else ""} e {len(self.site.loss)} loss.')
 
-            telegrambot.enviaMensagemDeErro(f'erro no programa principal\nerro inesperado:\n{error}')
+            self.telegrambot.enviaMensagemDeErro(f'erro no programa principal\nerro inesperado:\n{error}')
+            self.telegrambot.enviaMensagemDeErro('tentativa de reinicialização do programa.')
+            logger.exception(f'\nerro encontrado no programa: {error}')
+            
+            sl(5)
             sys('python main.py')
             exit()
 
     def optmizacaoGreenLoss(self): # como o programa salva os green e loss, essa otimização é apenas para limpar os green e loss salvos a mais de 24 horas
-        site = Site()
         tempo = time()
 
-        for chave, valor in site.green.items():
+        for chave, valor in self.site.green.items():
             if tempo - valor <= 86400 and tempo - valor >= 0:
                 continue
             else:
-                del site.green[chave]
+                del self.site.green[chave]
                 self.optmizacaoGreenLoss()
                 break
                     
-        for chave, valor in site.loss.items():
+        for chave, valor in self.site.loss.items():
             if tempo - valor <= 86400 and tempo - valor >= 0:
                 continue
             else: 
-                del site.loss[chave]
+                del self.site.loss[chave]
                 self.optmizacaoGreenLoss()
                 break
 
