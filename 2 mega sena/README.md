@@ -14,3 +14,7 @@ os filtros podem ser escolhidos, cada um com um esquema de estatistica e probabi
 
 para usar-los você só precissa baixar e instalar o python no seu computador;<br>
 nesse [link](https://www.python.org) você pode fazer o download do python, então é só rodar o código.
+
+<p align='center'>qual quer coisa só chamar</p>
+<p align='center'>meu discord / whatsapp:</p>
+<p align='center'>Purple-Senpai#7642 / (47) 992423806</p>
