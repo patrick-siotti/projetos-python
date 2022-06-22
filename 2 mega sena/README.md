@@ -9,3 +9,8 @@ programa que analisa cada jogo da mega sena, com varias opções de analise, pod
 
 programa que gera sequencias aleatórias, passa por filtros e te entrega uma sequencia que podeser jogada na mega sena
 os filtros podem ser escolhidos, cada um com um esquema de estatistica e probabilidade de um numero sair ou não
+
+## como usar
+
+para usar-los você só precissa baixar e instalar o python no seu computador;
+nesse [link](https://www.python.org) você pode fazer o download do python, então é só rodar o código.
