@@ -12,5 +12,5 @@ os filtros podem ser escolhidos, cada um com um esquema de estatistica e probabi
 
 ## como usar
 
-para usar-los você só precissa baixar e instalar o python no seu computador;
+para usar-los você só precissa baixar e instalar o python no seu computador;<br>
 nesse [link](https://www.python.org) você pode fazer o download do python, então é só rodar o código.
