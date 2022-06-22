@@ -15,10 +15,4 @@ esse bot pega os resultados do site blaze, no jogo double, e indentifica se ouve
 
 # mega sena
 
-- gerador de sequencia
-
-o gerador gera uma série de sequencias da mega pra você jogar, com base em estatistica e probabilidade, tendo varios filtros para você escolher
-
-- analise de sequencias
-
-varias opções para você analizar as sequencias que já aconteceram, com varias opções de analise
+um gerador de sequencia, onde você pode gerar sequencias para mega-sena a partir de filtros e um analizador de jogadas, onde você pode analisar todos os jogos da mega-sena.
