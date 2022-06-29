@@ -17,6 +17,8 @@ except Exception: # instalação dos pacotes não instalados
 
 CONFIGURACAO_DE_TESTE = False # coloque True para mandar mensagens das listas ao vivo
 
+print('iniciando o bot...')
+
 class TelegramBot(object):
     def __init__(self):
 
@@ -33,7 +35,7 @@ class TelegramBot(object):
                 get(f'https://api.telegram.org/bot{self.TOKEN}/sendMessage?chat_id={self.CHAT_ID}&text={mensagem}')
                 break
             except:
-                sl(2)
+                sl(1)
                 pass
         else:
             print('\no programa não esta conseguindo se conectar com o telegram, o bot foi desligado.\ntalvez você esteja sem internet ou passando por complicações, por favor, tente novamente mais tarde.')
@@ -46,7 +48,7 @@ class TelegramBot(object):
                 get(f'https://api.telegram.org/bot{self.TOKEN}/sendMessage?chat_id={self.CHAT_ID_ERRO}&text={mensagem}')
                 break
             except:
-                sl(2)
+                sl(1)
                 pass
         else:
             print('\no programa não esta conseguindo se conectar com o telegram, o bot foi desligado.\ntalvez você esteja sem internet ou passando por complicações, por favor, tente novamente mais tarde.')
@@ -103,15 +105,17 @@ class Site(object):
         if len(self.sec0) == 4 and self.sec0[0] != cor or len(self.sec1) == 9 and self.sec1[8] == cor or len(self.sec2) == 5 and self.sec2[4] == cor or len(self.sec3) == 4 and self.sec3[3] == cor or len(self.sec4) == 6 and self.sec4[4] == cor:
             self.telegrambot.enviaMensagem('Abortar missão ❗️') # previsão errada
 
-        if len(self.sec0) > 4 and self.sec0[0] != cor or len(self.sec1) > 9 and self.sec1[9] != cor or len(self.sec2) > 5 and self.sec2[5] != cor or len(self.sec3) > 4 and self.sec3[4] != cor or len(self.sec4) > 6 and self.sec4[5] != cor:
+        if (len(self.sec0) > 4 and self.sec0[0] != cor or len(self.sec1) > 9 and self.sec1[9] != cor or len(self.sec2) > 5 and self.sec2[5] != cor or len(self.sec3) > 4 and self.sec3[4] != cor or len(self.sec4) > 6 and self.sec4[5] != cor) and cor == self.confirm_cor:
             self.telegrambot.enviaMensagem('Green ✅ 🤑') # previsão certa
             self.green[f'green{len(self.green)}'] = int(time()) 
+            self.confirm_cor = ''
             for i in range(4+1):
                 exec(f'sec{i}.clear()')
 
         elif len(self.sec0) > 4 and cor == 'branco' or len(self.sec1) > 9 and cor == 'branco' or len(self.sec2) > 5 and cor == 'branco' or len(self.sec3) > 4 and cor == 'branco' or len(self.sec4) > 6 and cor == 'branco':
             self.telegrambot.enviaMensagem('Green ✅ 🤑') # previsão certa sendo branco
             self.green[f'green{len(self.green)}'] = int(time())
+            self.confirm_cor = ''
             for i in range(4+1):
                 exec(f'sec{i}.clear()')
 
@@ -146,6 +150,10 @@ class Site(object):
             if len(sec) == n:
                 if sec[-1] == cor:
                     sec.append(cor)
+
+            if cor != self.confirm_cor and self.confirm_cor != '' and gale == 1 and sec[-1] == 'branco':
+                sec.append(cor)
+
             if len(sec) == n+1:
                 if gale <= 2:
                     self.telegrambot.enviaMensagem(f'Aviso vamos ao {gale}º gale 🍀')
