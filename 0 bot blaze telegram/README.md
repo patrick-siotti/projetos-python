@@ -1,8 +1,6 @@
 <p align="center"><img src="https://user-images.githubusercontent.com/59841892/166119077-2d9d3201-5922-415f-8490-bcece3db3364.png" height="300" width="300"></p>
 <h1 align="center"> Double Kings </h1>
 
-meu primeiro projeto
-
 
 O bot, no site da Blaze, no jogo Double (você pode dar uma olhada [aqui](https://blaze.com/pt/games/double)), retira as jogadas de cada partida e com os padrões salvos, tenta descobrir qual sera a proxima jogada.
 As respostas do bot são feitas pelo telegram.
@@ -18,8 +16,8 @@ primeiro você deve baixar o codigo
 
 Depois, deve abri-lo em uma IDE ou em um editor de texto qualquer pois tem variaveis faltando nele, por segurança, as variaveis onde devem conter um id de um grupo do telegram, id privado para erros e um token de um bot devem ser preenchidos
 
-linha 29, 31 e 32<br>
-![image](https://user-images.githubusercontent.com/59841892/175167212-7d339e2a-4c4f-4124-b483-de588b1bafa9.png)
+linha 23, 25 e 26<br>
+![image](https://user-images.githubusercontent.com/59841892/176346182-01792bef-642d-4bcd-8fbf-e8111a3579bb.png)
 
 É bem pouco provavel haver erros, mas qualquer erro que ocorrer será automaticamente enviado para você, e o programa ira reiniciar automaticamente
 #
@@ -53,6 +51,8 @@ Abra o cmd dentro da pasta do projeto, e use o comando:
 todos os programas necesarios para o funcionamento do bot serão instalado
 #
 * executando o bot
+
+se caso você clicou duas vezes no programa e ele não abriu, então:
 
 ainda com o cmd aberto, basta digitar `python main.py`, e o programa será iniciado
 
