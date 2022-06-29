@@ -3,25 +3,19 @@
 from time import sleep as sl, time
 from os import system as sys
 try: # importação dos pacotes
-    from selenium import webdriver
-    from selenium.webdriver.common.by import By
-    from webdriver_manager.chrome import ChromeDriverManager
+    from playwright.sync_api import sync_playwright
     from requests import get
-    import logging
 except Exception: # instalação dos pacotes não instalados
-    print('instalando os pacotes: requests, webdriver-manager, selenium e logging')
+    print('instalando os pacotes: requests e playwrite')
     sl(3)
     sys('pip install requests')
-    sys('pip install webdriver-manager')
-    sys('pip install selenium')
-    sys('pip install logging')
+    sys('pip install playwright')
+    sys('playwright install')
     sys('cls')
     input('Por favor, feche e reinicie o programa.')
     exit()
 
-CONFIGURACAO_DE_TESTE = False # coloque True para mandar mensagens das listas ao vivo
-
-logger = logging.getLogger()
+CONFIGURACAO_DE_TESTE = True # coloque True para mandar mensagens das listas ao vivo
 
 class TelegramBot(object):
     def __init__(self):
@@ -31,8 +25,33 @@ class TelegramBot(object):
         self.CHAT_ID = 'chat do grupo' # chat do grupo em que o bot vai ficar (não tire as aspas)
         self.CHAT_ID_ERRO = 'chat de erros' # chat do seu pv, para mensagens de erro (não tire as aspas)
 
-        self.enviaMensagem = lambda mesage: get(f'https://api.telegram.org/bot{self.TOKEN}/sendMessage?chat_id={self.CHAT_ID}&text={mesage}')
-        self.enviaMensagemDeErro = lambda mesage: get(f'https://api.telegram.org/bot{self.TOKEN}/sendMessage?chat_id={self.CHAT_ID_ERRO}&text={mesage}')
+        self.tentativas = 5
+
+    def enviaMensagem(self, mensagem):
+        while self.tentativas > 0:
+            try:
+                get(f'https://api.telegram.org/bot{self.TOKEN}/sendMessage?chat_id={self.CHAT_ID}&text={mensagem}')
+                break
+            except:
+                sl(2)
+                pass
+        else:
+            print('\no programa não esta conseguindo se conectar com o telegram, o bot foi desligado.\ntalvez você esteja sem internet ou passando por complicações, por favor, tente novamente mais tarde.')
+            input()
+            exit()
+
+    def enviaMensagemDeErro(self, mensagem):
+        while self.tentativas > 0:
+            try:
+                get(f'https://api.telegram.org/bot{self.TOKEN}/sendMessage?chat_id={self.CHAT_ID_ERRO}&text={mensagem}')
+                break
+            except:
+                sl(2)
+                pass
+        else:
+            print('\no programa não esta conseguindo se conectar com o telegram, o bot foi desligado.\ntalvez você esteja sem internet ou passando por complicações, por favor, tente novamente mais tarde.')
+            input()
+            exit()
 
 class Site(object):
     def __init__(self):
@@ -49,11 +68,10 @@ class Site(object):
 
     def iniSite(self):
 
-        options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
-
-        self.navegador = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
-        self.navegador.get(self.SITE)
+        self.playwright = sync_playwright().start()
+        self.browser = self.playwright.chromium.launch()
+        self.navegador = self.browser.new_page()
+        self.navegador.goto(self.SITE)
 
         sys('cls')
         sys('@title Bot Double')
@@ -61,11 +79,10 @@ class Site(object):
 
     def pegaCor(self):
         while True:
-            carregamento = self.navegador.find_element(By.XPATH, '//*[@id="roulette-timer"]/div[1]')
-            
+            carregamento = self.navegador.locator('//*[@id="roulette-timer"]/div[1]').text_content()
             try:
-                if carregamento.text.split()[0] == 'Blaze':
-                    num = carregamento.text.split()[2][0:-1]
+                if carregamento.split()[0] == 'Blaze':
+                    num = carregamento.split()[2][0:-1]
                     if int(num) == 0:
                         return 'branco'
                     elif int(num) <= 7:
@@ -100,9 +117,9 @@ class Site(object):
 
     def esperar(self):
         while True:
-            carregamento = self.navegador.find_element(By.XPATH, '//*[@id="roulette-timer"]/div[1]')
+            carregamento = self.navegador.locator('//*[@id="roulette-timer"]/div[1]').text_content()
             try:
-                if carregamento.text.split()[0] == 'Girando' or carregamento.text.split()[0] == 'Girando...':
+                if carregamento.split()[0] == 'Girando' or carregamento.text.split()[0] == 'Girando...':
                     return
             except:
                 pass
@@ -138,12 +155,12 @@ class Site(object):
                     sec.clear()
 
         def foca(sec, n):
+            n = n-1
             sec0 = self.sec0
             sec1 = self.sec1
             sec2 = self.sec2
             sec3 = self.sec3
             sec4 = self.sec4
-            n = n-1
             for i in range(4+1):
                 exec(f'if len({sec}) > {n}:\n\tif {sec} == sec{i}:\n\t\tpass\n\telse:\n\t\tsec{i}.clear()')
                 # função encurtada usando exec, ela limpa as outras sequencias caso uma esteja em foco
@@ -226,7 +243,7 @@ class Site(object):
             self.telegrambot.enviaMensagem(f'Aviso! possivel entrada, favor aguardar.\nhttps://blaze.com/pt/games/double')
 
         if len(self.sec0) == 5 or len(self.sec1) == 10 or len(self.sec2) == 6 or len(self.sec3) == 5 or len(self.sec4) == 6:
-            self.telegrambot.enviaMensagem(f'Aviso! entrada confirmada na cor {"🟥" if cor == "preto" else "⬛️"}')
+            self.telegrambot.enviaMensagem(f'Aviso! entrada confirmada na cor {"🟥" if cor == "preto" else "⬛️"} ({"vermelho" if cor == "preto" else "preto"})')
             self.confirm_cor = 'vermelho' if cor == 'preto' else 'preto'
 
         self.esperar()
@@ -236,14 +253,12 @@ class Program(object):
 
         self.site = Site()
         self.telegrambot = TelegramBot()
-        self.texteNet = lambda: sys('ping google.com') # testa conexão
 
         try:
             self.site.iniSite()
-        except Exception as error:
+        except Exception:
             sys('cls')
-            print('erro ao inicializar o site\nverifique sua conexão com a internet e tente novamente.')
-            print('para o funcionamento do bot, o google chrome deve estar instalado no seu computador.')
+            print('ops, ocorreu um erro ao iniciar o site para você, o bot foi desligado.\ntalvez você esteja sem internet ou passando por complicações, tente novamente mais tarde.')
             input()
             exit()
 
@@ -254,19 +269,13 @@ class Program(object):
                 self.site.jogadas(cor)
                 self.site.aviso(cor)
 
-                if CONFIGURACAO_DE_TESTE == True:
-                    self.telegrambot.enviaMensagemDeErro(cor)
-                    self.telegrambot.enviaMensagemDeErro(self.site.sec0)
-                    self.telegrambot.enviaMensagemDeErro(self.site.sec1)
-                    self.telegrambot.enviaMensagemDeErro(self.site.sec2)
-                    self.telegrambot.enviaMensagemDeErro(self.site.sec3)
-                    self.telegrambot.enviaMensagemDeErro(self.site.sec4)
-                    self.telegrambot.enviaMensagemDeErro('.') # configuração de teste
+                if CONFIGURACAO_DE_TESTE == True: # log ao vivo
+                    self.telegrambot.enviaMensagemDeErro(f'{cor}\n{self.site.sec0}\n{self.site.sec1}\n{self.site.sec2}\n{self.site.sec3}\n{self.site.sec4}\n.') # configuração de teste
 
                 self.optmizacaoGreenLoss()
             
-        except KeyboardInterrupt:
-            print('\niniciando o fechamento do dia...')
+        except KeyboardInterrupt: # se caso o programa for interrompido pelo usuario
+            print('\ninterrompendo o programa e iniciando o fechamento do dia...')
 
             if len(self.site.green) != 0 or len(self.site.loss) != 0:
                 self.telegrambot.enviaMensagem(f'Fechamento do dia:\n{len(self.site.green)} green{"s" if len(self.site.green) > 1 else ""} e {len(self.site.loss)} loss.')
@@ -275,22 +284,17 @@ class Program(object):
                 print('fechamento do dia zerado, ', end='')
 
             print('finalizando programa.')
-            sl(3)
+            sl(5)
             exit()
 
-        except Exception as error:
-            # print(f'\nerro inesperado na execução do programa:\n{error}\n\ntentativa de reinicialização do programa...\n')
-            print('ops, erro encontrado...')
-            while self.texteNet() == 1:
-                sl(5)    
+        except: # se caso der algum erro inesperado
+            print('ops, algo deu errado...\nvamos tentar reiniciar o programa pra ver se resolve')
 
             if len(self.site.green) != 0 or len(self.site.loss) != 0:
                 self.telegrambot.enviaMensagem(f'Fechamento do dia:\n{len(self.site.green)} green{"s" if len(self.site.green) > 1 else ""} e {len(self.site.loss)} loss.')
 
-            self.telegrambot.enviaMensagemDeErro(f'erro no programa principal\nerro inesperado:\n{error}')
-            self.telegrambot.enviaMensagemDeErro('tentativa de reinicialização do programa.')
-            logger.exception(f'\nerro encontrado no programa: {error}')
-            
+            self.telegrambot.enviaMensagemDeErro(f'algo deu errado com o bot, mas já estamos reiniciando pra ver se resolve')
+
             sl(5)
             sys('python main.py')
             exit()
