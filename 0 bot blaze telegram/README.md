@@ -64,7 +64,7 @@ não me orgulho muito dele, em algumas partes ele é bem confuso, e ele poderia 
 
 #
 
-irei disponibilizar um link posteriormente para poder entrar em um servidor do telegram e ver o bot em ação!
+link para ver o bot em ação: https://t.me/BlazeDoubleKings
 
 <p align='center'>qualquer coisa só chamar</p>
 <p align='center'>meu discord / whatsapp:</p>
