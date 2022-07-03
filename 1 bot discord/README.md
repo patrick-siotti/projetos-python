@@ -64,8 +64,6 @@ se caso não funcionar, você pode ter esquecido de criar um bot, recomendo pesq
 `bot.run(config('TOKEN'))`
 # 
 
-irei liberar um link posteriormente para poder ve-lo em ação.
-
 <p align='center'>qualquer coisa só chamar</p>
 <p align='center'>meu discord / whatsapp:</p>
 <p align='center'>Purple-Senpai#7642 / (47) 992423806</p>
