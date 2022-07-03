@@ -105,14 +105,14 @@ class Site(object):
         if len(self.sec0) == 3 and self.sec0[0] != cor or len(self.sec1) == 9 and self.sec1[8] == cor or len(self.sec2) == 5 and self.sec2[4] == cor or len(self.sec3) == 4 and self.sec3[3] == cor or len(self.sec4) == 5 and self.sec4[4] == cor:
             self.telegrambot.enviaMensagem('Abortar missão ❗️') # previsão errada
 
-        if (len(self.sec0) > 3 and self.sec0[0] != cor or len(self.sec1) > 9 and self.sec1[9] != cor or len(self.sec2) > 5 and self.sec2[5] != cor or len(self.sec3) > 4 and self.sec3[4] != cor or len(self.sec4) > 6 and self.sec4[5] != cor) and cor == self.confirm_cor:
+        if (len(self.sec0) > 3 and self.sec0[0] != cor or len(self.sec1) > 9 and self.sec1[9] != cor or len(self.sec2) > 5 and self.sec2[5] != cor or len(self.sec3) > 4 and self.sec3[4] != cor or len(self.sec4) > 5 and self.sec4[5] != cor) and cor == self.confirm_cor:
             self.telegrambot.enviaMensagem(f'Green ✅ 🤑') # previsão certa
             self.green[f'green{len(self.green)}'] = int(time()) 
             self.confirm_cor = ''
             for i in range(4+1):
                 exec(f'sec{i}.clear()')
 
-        elif len(self.sec0) > 3 and cor == 'branco' or len(self.sec1) > 9 and cor == 'branco' or len(self.sec2) > 5 and cor == 'branco' or len(self.sec3) > 4 and cor == 'branco' or len(self.sec4) > 6 and cor == 'branco':
+        elif len(self.sec0) > 3 and cor == 'branco' or len(self.sec1) > 9 and cor == 'branco' or len(self.sec2) > 5 and cor == 'branco' or len(self.sec3) > 4 and cor == 'branco' or len(self.sec4) > 5 and cor == 'branco':
             self.telegrambot.enviaMensagem('Green cor branca ✅ 🤑') # previsão certa sendo branco
             self.green[f'green{len(self.green)}'] = int(time())
             self.confirm_cor = ''
