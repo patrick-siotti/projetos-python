@@ -15,7 +15,7 @@ except Exception: # instalação dos pacotes não instalados
     input('Por favor, feche e reinicie o programa.')
     exit()
 
-CONFIGURACAO_DE_TESTE = True # coloque True para mandar mensagens das listas ao vivo
+CONFIGURACAO_DE_TESTE = False # coloque True para mandar mensagens das listas ao vivo
 
 print('iniciando o bot...')
 
