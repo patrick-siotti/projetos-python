@@ -15,7 +15,7 @@ except Exception: # instalação dos pacotes não instalados
     input('Por favor, feche e reinicie o programa.')
     exit()
 
-CONFIGURACAO_DE_TESTE = False # coloque True para mandar mensagens das listas ao vivo
+CONFIGURACAO_DE_TESTE = True # coloque True para mandar mensagens das listas ao vivo
 
 print('iniciando o bot...')
 
@@ -102,18 +102,18 @@ class Site(object):
         sec3 = self.sec3
         sec4 = self.sec4
 
-        if len(self.sec0) == 4 and self.sec0[0] != cor or len(self.sec1) == 9 and self.sec1[8] == cor or len(self.sec2) == 5 and self.sec2[4] == cor or len(self.sec3) == 4 and self.sec3[3] == cor or len(self.sec4) == 6 and self.sec4[4] == cor:
+        if len(self.sec0) == 3 and self.sec0[0] != cor or len(self.sec1) == 9 and self.sec1[8] == cor or len(self.sec2) == 5 and self.sec2[4] == cor or len(self.sec3) == 4 and self.sec3[3] == cor or len(self.sec4) == 5 and self.sec4[4] == cor:
             self.telegrambot.enviaMensagem('Abortar missão ❗️') # previsão errada
 
-        if (len(self.sec0) > 4 and self.sec0[0] != cor or len(self.sec1) > 9 and self.sec1[9] != cor or len(self.sec2) > 5 and self.sec2[5] != cor or len(self.sec3) > 4 and self.sec3[4] != cor or len(self.sec4) > 6 and self.sec4[5] != cor) and cor == self.confirm_cor:
-            self.telegrambot.enviaMensagem('Green ✅ 🤑') # previsão certa
+        if (len(self.sec0) > 3 and self.sec0[0] != cor or len(self.sec1) > 9 and self.sec1[9] != cor or len(self.sec2) > 5 and self.sec2[5] != cor or len(self.sec3) > 4 and self.sec3[4] != cor or len(self.sec4) > 6 and self.sec4[5] != cor) and cor == self.confirm_cor:
+            self.telegrambot.enviaMensagem(f'Green ✅ 🤑') # previsão certa
             self.green[f'green{len(self.green)}'] = int(time()) 
             self.confirm_cor = ''
             for i in range(4+1):
                 exec(f'sec{i}.clear()')
 
-        elif len(self.sec0) > 4 and cor == 'branco' or len(self.sec1) > 9 and cor == 'branco' or len(self.sec2) > 5 and cor == 'branco' or len(self.sec3) > 4 and cor == 'branco' or len(self.sec4) > 6 and cor == 'branco':
-            self.telegrambot.enviaMensagem('Green ✅ 🤑') # previsão certa sendo branco
+        elif len(self.sec0) > 3 and cor == 'branco' or len(self.sec1) > 9 and cor == 'branco' or len(self.sec2) > 5 and cor == 'branco' or len(self.sec3) > 4 and cor == 'branco' or len(self.sec4) > 6 and cor == 'branco':
+            self.telegrambot.enviaMensagem('Green cor branca ✅ 🤑') # previsão certa sendo branco
             self.green[f'green{len(self.green)}'] = int(time())
             self.confirm_cor = ''
             for i in range(4+1):
@@ -151,8 +151,9 @@ class Site(object):
                 if sec[-1] == cor:
                     sec.append(cor)
 
-            if cor != self.confirm_cor and self.confirm_cor != '' and gale == 1 and sec[-1] == 'branco':
-                sec.append(cor)
+            if len(sec) != 0:
+                if cor != self.confirm_cor and self.confirm_cor != '' and gale == 1 and sec[-1] == 'branco':
+                    sec.append(cor)
 
             if len(sec) == n+1:
                 if gale <= 2:
@@ -178,12 +179,12 @@ class Site(object):
         if len(self.sec0) == 0:
             self.sec0.append(cor)
         else:
-            if len(self.sec0) <= 4:
+            if len(self.sec0) <= 3:
                 igual(self.sec0, 0)
             else:
-                addgale(self.sec0, 7, 3)
-                addgale(self.sec0, 6, 2)
-                addgale(self.sec0, 5, 1)
+                addgale(self.sec0, 6, 3)
+                addgale(self.sec0, 5, 2)
+                addgale(self.sec0, 4, 1)
 
         foca('sec1', 9)
         if len(self.sec1) == 0:
@@ -247,10 +248,10 @@ class Site(object):
 
     def aviso(self, cor):
 
-        if len(self.sec0) == 4 or len(self.sec1) == 9 or len(self.sec2) == 5 or len(self.sec3) == 4 or len(self.sec4) == 5:
+        if len(self.sec0) == 3 or len(self.sec1) == 9 or len(self.sec2) == 5 or len(self.sec3) == 4 or len(self.sec4) == 5:
             self.telegrambot.enviaMensagem(f'Aviso! possivel entrada, favor aguardar.\nhttps://blaze.com/pt/games/double')
 
-        if len(self.sec0) == 5 or len(self.sec1) == 10 or len(self.sec2) == 6 or len(self.sec3) == 5 or len(self.sec4) == 6:
+        if len(self.sec0) == 4 or len(self.sec1) == 10 or len(self.sec2) == 6 or len(self.sec3) == 5 or len(self.sec4) == 6:
             self.telegrambot.enviaMensagem(f'Aviso! entrada confirmada na cor {"🟥" if cor == "preto" else "⬛️"} ({"vermelho" if cor == "preto" else "preto"})')
             self.confirm_cor = 'vermelho' if cor == 'preto' else 'preto'
 
