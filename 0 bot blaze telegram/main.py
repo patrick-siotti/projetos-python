@@ -3,31 +3,33 @@
 from time import sleep as sl, time
 from os import system as sys
 try: # importação dos pacotes
-    from playwright.sync_api import sync_playwright
     from requests import get
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from webdriver_manager.chrome import ChromeDriverManager
 except Exception: # instalação dos pacotes não instalados
-    print('instalando os pacotes: requests e playwrite')
+    print('instalando os pacotes: requests e selenium')
     sl(3)
     sys('pip install requests')
     sys('pip install playwright')
-    sys('playwright install')
+    sys('pip install webdriver-manager')
     sys('cls')
     input('Por favor, feche e reinicie o programa.')
     exit()
 
-CONFIGURACAO_DE_TESTE = False # coloque True para mandar mensagens das listas ao vivo
+CONFIGURACAO_DE_TESTE = False # coloque True para mandar mensagens das listas ao vivo pelo privado
 
 print('iniciando o bot...')
 
 class TelegramBot(object):
     def __init__(self):
 
-        self.TOKEN = 'token do bot' # token do bot criado pelo botfather (não tire as aspas)
+        self.TOKEN = 'TOKEN DO BOT' # token do bot criado pelo botfather (não tire as aspas)
 
-        self.CHAT_ID = 'chat do grupo' # chat do grupo em que o bot vai ficar (não tire as aspas)
-        self.CHAT_ID_ERRO = 'chat de erros' # chat do seu pv, para mensagens de erro (não tire as aspas)
+        self.CHAT_ID = 'ID CHAT' # chat do grupo em que o bot vai ficar (não tire as aspas)
+        self.CHAT_ID_ERRO = 'ID PRIVADO' # chat do seu pv, para mensagens de erro (não tire as aspas)
 
-        self.tentativas = 5
+        self.tentativas = 5 # numeros de tentativas para conectar com o telegram
 
     def enviaMensagem(self, mensagem):
         while self.tentativas > 0:
@@ -70,21 +72,22 @@ class Site(object):
 
     def iniSite(self):
 
-        self.playwright = sync_playwright().start()
-        self.browser = self.playwright.chromium.launch()
-        self.navegador = self.browser.new_page()
-        self.navegador.goto(self.SITE)
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')
+
+        self.navegador = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
+        self.navegador.get(self.SITE)
 
         sys('cls')
         sys('@title Bot Double')
-        print('Bot iniciado.')
+        print(f'Bot iniciado.\n{"-" * 50}')
 
     def pegaCor(self):
         while True:
-            carregamento = self.navegador.locator('//*[@id="roulette-timer"]/div[1]').text_content()
+            carregamento = self.navegador.find_element(By.XPATH, '//*[@id="roulette-timer"]/div[1]')
             try:
-                if carregamento.split()[0] == 'Blaze':
-                    num = carregamento.split()[2][0:-1]
+                if carregamento.text.split()[0] == 'Blaze':
+                    num = carregamento.text.split()[2][0:-1]
                     if int(num) == 0:
                         return 'branco'
                     elif int(num) <= 7:
@@ -107,6 +110,8 @@ class Site(object):
 
         if (len(self.sec0) > 3 and self.sec0[0] != cor or len(self.sec1) > 9 and self.sec1[9] != cor or len(self.sec2) > 5 and self.sec2[5] != cor or len(self.sec3) > 4 and self.sec3[4] != cor or len(self.sec4) > 5 and self.sec4[5] != cor) and cor == self.confirm_cor:
             self.telegrambot.enviaMensagem(f'Green ✅ 🤑') # previsão certa
+            if CONFIGURACAO_DE_TESTE == True: # log ao vivo
+                self.telegrambot.enviaMensagemDeErro('green')
             self.green[f'green{len(self.green)}'] = int(time()) 
             self.confirm_cor = ''
             for i in range(4+1):
@@ -114,6 +119,8 @@ class Site(object):
 
         elif len(self.sec0) > 3 and cor == 'branco' or len(self.sec1) > 9 and cor == 'branco' or len(self.sec2) > 5 and cor == 'branco' or len(self.sec3) > 4 and cor == 'branco' or len(self.sec4) > 5 and cor == 'branco':
             self.telegrambot.enviaMensagem('Green cor branca ✅ 🤑') # previsão certa sendo branco
+            if CONFIGURACAO_DE_TESTE == True: # log ao vivo
+                self.telegrambot.enviaMensagemDeErro('green branco')
             self.green[f'green{len(self.green)}'] = int(time())
             self.confirm_cor = ''
             for i in range(4+1):
@@ -121,9 +128,9 @@ class Site(object):
 
     def esperar(self):
         while True:
-            carregamento = self.navegador.locator('//*[@id="roulette-timer"]/div[1]').text_content()
+            carregamento = self.navegador.find_element(By.XPATH, '//*[@id="roulette-timer"]/div[1]')
             try:
-                if carregamento.split()[0] == 'Girando' or carregamento.text.split()[0] == 'Girando...':
+                if carregamento.text.split()[0] == 'Girando' or carregamento.text.split()[0] == 'Girando...':
                     return
             except:
                 pass
@@ -160,6 +167,8 @@ class Site(object):
                     self.telegrambot.enviaMensagem(f'Aviso vamos ao {gale}º gale 🍀')
                 if gale == 3:
                     self.telegrambot.enviaMensagem('Não foi dessa vez, mas mantenha a calma!')
+                    if CONFIGURACAO_DE_TESTE == True: # log ao vivo
+                        self.telegrambot.enviaMensagemDeErro('loss')
                     self.loss[f'loss{len(self.loss)}'] = int(time())
                     sec.clear()
 
@@ -265,7 +274,7 @@ class Program(object):
 
         try:
             self.site.iniSite()
-        except Exception:
+        except Exception as error:
             sys('cls')
             print('ops, ocorreu um erro ao iniciar o site para você, o bot foi desligado.\ntalvez você esteja sem internet ou passando por complicações, tente novamente mais tarde.')
             input()
@@ -273,13 +282,14 @@ class Program(object):
 
         try:
             while True:
+
                 cor = self.site.pegaCor()
                 self.site.finais(cor)
                 self.site.jogadas(cor)
-                self.site.aviso(cor)
+                self.site.aviso(cor)        
 
                 if CONFIGURACAO_DE_TESTE == True: # log ao vivo
-                    self.telegrambot.enviaMensagemDeErro(f'{cor}\n{self.site.sec0}\n{self.site.sec1}\n{self.site.sec2}\n{self.site.sec3}\n{self.site.sec4}\n.') # configuração de teste
+                    self.telegrambot.enviaMensagemDeErro(f'cor: {cor}\nsec0: {self.site.sec0}\nsec1: {self.site.sec1}\nsec2: {self.site.sec2}\nsec3: {self.site.sec3}\nsec4: {self.site.sec4}\n.') # configuração de teste
 
                 self.optmizacaoGreenLoss()
             
