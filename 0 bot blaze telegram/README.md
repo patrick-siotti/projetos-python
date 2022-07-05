@@ -60,7 +60,7 @@ ele funcionara na sua maquina, para funcionar em nuvem, basta colocalo em um ser
 
 # sobre o código
 
-não me orgulho muito dele, em algumas partes ele é bem confuso, e ele poderia ter sido feito de uma forma mais simples, usando apenas uma variavel para armazenar as cores, e analizando apenas ela para todas as sequencias, porem ele funciona, e faz o que deve ser feito.
+não me orgulho muito dele, agora que tenho mais esperiencia, entendo que poderia fazer de forma mais simples, em algumas partes ele é bem confuso, eu poderua ter usado apenas uma variavel para armazenar as cores, e um codigo pequeno para cada sequencia poder analizar a variavel des cores, com uma variavel booleana para controlar-las, seria bem mais facil, porem ele funciona, e faz o que deve ser feito.
 
 #
 
