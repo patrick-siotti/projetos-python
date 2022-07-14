@@ -64,8 +64,6 @@ não me orgulho muito dele, agora que tenho mais esperiencia, entendo que poderi
 
 #
 
-link para ver o bot em ação: https://t.me/BlazeDoubleKings
-
 <p align='center'>qualquer coisa só chamar</p>
 <p align='center'>meu discord / whatsapp:</p>
 <p align='center'>Purple-Senpai#7642 / (47) 992423806</p>
