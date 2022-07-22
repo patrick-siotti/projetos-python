@@ -27,7 +27,7 @@ async def escrevedb(db):
   repo.update_file(contents.path, "", str(db), contents.sha)
 ```
 
-tudo é feito pelo codigo, o sistema é asincrono, ou seja, se em quanto estiver executando um comando, outra pessoa chamar outro comando, ele irá fazer os dois ao mesmo tempo, o bot tem uma aba de help própria, quando ele inicia, ele puxa os dados do github, sempre o atualizando no final de cada comando.
+tudo é feito pelo codigo, o sistema é assíncrono, ou seja, se em quanto estiver executando um comando, outra pessoa chamar outro comando, ele irá fazer os dois ao mesmo tempo, o bot tem uma aba de help própria, quando ele inicia, ele puxa os dados do github, sempre o atualizando no final de cada comando.
 
 # tentei usar, mas não consegui, o que faço?
 
