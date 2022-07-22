@@ -5,11 +5,12 @@
 O bot, no site da Blaze, no jogo Double (você pode dar uma olhada [aqui](https://blaze.com/pt/games/double)), retira as jogadas de cada partida e com os padrões salvos, tenta descobrir qual sera a proxima jogada.
 As respostas do bot são feitas pelo telegram.
 
-A margem de erro do bot é menor que 5%, pois usa um sistema de multiplicação de aposta quando o padrão é esticado.
-
 ![imagem das respostas do bot](https://user-images.githubusercontent.com/59841892/166119477-243de44d-2324-4f8b-ad4e-4654e4d85f73.PNG)
 
 Aqui mostra o bot avisando de uma possivel entrada, depois confirmando a entrada da cor vermelha, e logo em seguida mostra susseso na previsão.
+
+nesse projeto usei selenium para retirar dados do site, usei a rest api do telegram para mandar as mensagens e hospedei o bot em dois servidores, o google clound e aws.
+como o site bloqueia ip de varios paises, opções gratuitas foram mais dificeis de achar.
 
 <h1 align="center">quero usar, como fazer?</h1>
 primeiro você deve baixar o codigo
