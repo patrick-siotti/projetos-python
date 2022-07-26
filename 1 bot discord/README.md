@@ -17,13 +17,13 @@ O bot pode ser moderado pelo próprio servidor, tendo até um sistema de log:
 o primeiro problema que encontrei foi a persistencia em banco de dados, depois de umas 3 horas, o banco de dados era formatado, então tive a ideia de manter o banco de dados em git, quando o bot iniciar, irá pegar o banco de dados no github, quando quiser escrever, é só atualizar o repositório, assim eu fiz, com esse trecho:
 </p>
 <pre>
-def pegadb():
+<p>def pegadb():
   return eval(git.get_user().get_repo(mainrepo).get_contents('/')[indice].decoded_content.decode('utf-8'))
 
 async def escrevedb(db):
   repo = git.get_user().get_repo(mainrepo)
   contents = repo.get_contents('/')[indice]
-  repo.update_file(contents.path, "", str(db), contents.sha)
+  repo.update_file(contents.path, "", str(db), contents.sha)</p>
 </pre>
 <p>
 tudo é feito pelo codigo, o sistema é assíncrono, ou seja, se em quanto estiver executando um comando, outra pessoa chamar outro comando, ele irá fazer os dois ao mesmo tempo, o bot tem uma aba de help própria, quando ele inicia, ele puxa os dados do github, sempre o atualizando no final de cada comando.
