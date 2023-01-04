@@ -1,340 +1,637 @@
-# variaveis faltando <token do bot, chat do grupo, chat de erros>
+from time import sleep, localtime
+from requests import get
+from datetime import datetime
 
-from time import sleep as sl, time
-from os import system as sys
-try: # importação dos pacotes
-    from requests import get
-    from selenium import webdriver
-    from selenium.webdriver.common.by import By
-    from webdriver_manager.chrome import ChromeDriverManager
-except Exception: # instalação dos pacotes não instalados
-    print('instalando os pacotes: requests e selenium')
-    sl(3)
-    sys('pip install requests')
-    sys('pip install playwright')
-    sys('pip install webdriver-manager')
-    sys('cls')
-    input('Por favor, feche e reinicie o programa.')
-    exit()
+jogos = []
+estrategias = []
+logs = {}
+token = '5193397913:AAEmsAdE2IRVTNDLe5qLaMsG3y_S61t-zrA'
+link = f"https://api.telegram.org/bot{token}/"
+stop2 = False
+versao = 6
+idParcial = None
+parcial_hora = {'green': 0, 'green branca': 0, 'red': 0}
+hora = localtime().tm_hour
+horaAHora = {}
+atualizado = False
+dia = False
 
-CONFIGURACAO_DE_TESTE = False # coloque True para mandar mensagens das listas ao vivo pelo privado
+stickers = {'green branco': 'CAACAgEAAxkBAAEV-aRi0CM01C2fXvxjej6OZ8f0NAzvbgACjgEAAmZluEUPF-6vdM99sCkE',
+'green': 'CAACAgEAAxkBAAEV-Ypi0CCV0uBoGuwowPX0T8LHbGWwxwAC8gEAAqTwIUViqOsX-tT1cikE',
+'loss': 'CAACAgEAAxkBAAEV-ZRi0CEHy0s0uYaIsv6RzqJ_4RlpewACGAIAAp0pKUW3qhl-6XSkwikE',
+'greens seguidos': 'CAACAgEAAxkBAAEV-Z5i0CGkyOOL3cIalsuMVxmxYAVDXgAC_AEAAqLCIEWL8D1Oy-u_UikE'}
 
-print('iniciando o bot...')
+#        grupo principal
+grupo = ['-861832842']
+#             privado
+grupo_pv = []
 
-class TelegramBot(object):
-    def __init__(self):
+chat = grupo[0]
 
-        self.TOKEN = 'TOKEN DO BOT' # token do bot criado pelo botfather (não tire as aspas)
+try:
 
-        self.CHAT_ID = 'ID CHAT' # chat do grupo em que o bot vai ficar (não tire as aspas)
-        self.CHAT_ID_ERRO = 'ID PRIVADO' # chat do seu pv, para mensagens de erro (não tire as aspas)
+  def manda_msg(msg, chats=grupo):
+    global token
+    resp = []
+    for chat in chats:
+      resp.append(get(f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat}&text={msg}").json())
+    return resp
 
-        self.tentativas = 5 # numeros de tentativas para conectar com o telegram
+  def verifica_hora():
+    global dia
+    global hora
+    global parcial_hora
+    global horaAHora
+    global atualizado
 
-    def enviaMensagem(self, mensagem):
-        while self.tentativas > 0:
-            try:
-                get(f'https://api.telegram.org/bot{self.TOKEN}/sendMessage?chat_id={self.CHAT_ID}&text={mensagem}')
-                break
-            except:
-                sl(1)
-                pass
-        else:
-            print('\no programa não esta conseguindo se conectar com o telegram, o bot foi desligado.\ntalvez você esteja sem internet ou passando por complicações, por favor, tente novamente mais tarde.')
-            input()
-            exit()
+    if atualizado == True and datetime.today().weekday() == 2:
+      atualizado = False
 
-    def enviaMensagemDeErro(self, mensagem):
-        while self.tentativas > 0:
-            try:
-                get(f'https://api.telegram.org/bot{self.TOKEN}/sendMessage?chat_id={self.CHAT_ID_ERRO}&text={mensagem}')
-                break
-            except:
-                sl(1)
-                pass
-        else:
-            print('\no programa não esta conseguindo se conectar com o telegram, o bot foi desligado.\ntalvez você esteja sem internet ou passando por complicações, por favor, tente novamente mais tarde.')
-            input()
-            exit()
+    if datetime.today().weekday() == 1 and atualizado == False:
 
-class Site(object):
-    def __init__(self):
-        self.sec0 = [] # sec0 == sequencia0
-        self.sec1 = []
-        self.sec2 = []
-        self.sec3 = []
-        self.sec4 = []
-        self.green = {} # acertos
-        self.loss = {} # erros
-        self.confirm_cor = ''
-        self.SITE = 'https://blaze.com/pt/games/double'
-        self.telegrambot = TelegramBot()
+      manda_msg(f'atualização nos padrões da blaze detectado.\naguarde até o bot detectar os novos padrões.\nperiodo aproximado até o bot detectar os novos padrões: 24hrs.')
+      logs = {}
+      for estrategia in estrategias:
+        logs[str(estrategia['sequencia'])] = {1: {'green': 0, 'green branca': 0, 'red': 0, 'acertividade': 0}, 2: {'green': 0, 'green branca': 0, 'red': 0, 'acertividade': 0}}
 
-    def iniSite(self):
+      horaAHora = {}
+      parcial_hora = {'green': 0, 'green branca': 0, 'red': 0}
+      atualizado = True
 
-        options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
+    elif localtime().tm_hour != hora:
+      hora = localtime().tm_hour
 
-        self.navegador = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
-        self.navegador.get(self.SITE)
+      if hora == 1 and dia == True:
+        dia = False
 
-        sys('cls')
-        sys('@title Bot Double')
-        print(f'Bot iniciado.\n{"-" * 50}')
+      if hora == 0 and dia == False:
+        parcial = ((parcial_hora["green"] + parcial_hora['green branca']) * 100) / (parcial_hora["green"] + parcial_hora['green branca'] + parcial_hora['red'])
+        horaAHora[hora] = parcial
+        listinha = []
 
-    def pegaCor(self):
-        while True:
-            carregamento = self.navegador.find_element(By.XPATH, '//*[@id="roulette-timer"]/div[1]')
-            try:
-                if carregamento.text.split()[0] == 'Blaze':
-                    num = carregamento.text.split()[2][0:-1]
-                    if int(num) == 0:
-                        return 'branco'
-                    elif int(num) <= 7:
-                        return 'vermelho'
-                    else:
-                        return 'preto'
-            except:
-                pass
+        for valor in horaAHora.values():
+          listinha.append(valor)
 
-    def finais(self, cor):
+        manda_msg(f'Relatório do dia:\nA média do dia foi de: {sum(listinha) / len(listinha):.2f}% 🎯')
+          
+        txt = ''
+        for n, x in enumerate(sorted(horaAHora, key=horaAHora.get, reverse=True)):
+          if n == 11:
+            break
+          txt += f'{n+1} - hora: {x} acertividade {horaAHora[x]:.2f}\n'
 
-        sec0 = self.sec0
-        sec1 = self.sec1
-        sec2 = self.sec2
-        sec3 = self.sec3
-        sec4 = self.sec4
+        manda_msg(f'As top 10 melhores horas de hoje: 🍀🍀🍀\n{txt}')
 
-        if len(self.sec0) == 3 and self.sec0[0] != cor or len(self.sec1) == 9 and self.sec1[8] == cor or len(self.sec2) == 5 and self.sec2[4] == cor or len(self.sec3) == 4 and self.sec3[3] == cor or len(self.sec4) == 5 and self.sec4[4] == cor:
-            self.telegrambot.enviaMensagem('Abortar missão ❗️') # previsão errada
+        horaAHora = {}
+        dia = True
 
-        if (len(self.sec0) > 3 and self.sec0[0] != cor or len(self.sec1) > 9 and self.sec1[9] != cor or len(self.sec2) > 5 and self.sec2[5] != cor or len(self.sec3) > 4 and self.sec3[4] != cor or len(self.sec4) > 5 and self.sec4[5] != cor) and cor == self.confirm_cor:
-            self.telegrambot.enviaMensagem(f'Green ✅ 🤑') # previsão certa
-            if CONFIGURACAO_DE_TESTE == True: # log ao vivo
-                self.telegrambot.enviaMensagemDeErro('green')
-            self.green[f'green{len(self.green)}'] = int(time()) 
-            self.confirm_cor = ''
-            for i in range(4+1):
-                exec(f'sec{i}.clear()')
+      elif parcial_hora['green'] != 0 or parcial_hora['green branca'] != 0 or parcial_hora['red'] != 0:
+        manda_msg(f'relatório da ultima hora:\n✅ = {parcial_hora["green"]}\n⚪️ = {parcial_hora["green branca"]}\n⛔️ = {parcial_hora["red"]}\n🎯 = {parcial:.2f}')
+          
+      elif parcial_hora['green'] != 0 or parcial_hora['green branca'] != 0 or parcial_hora['red'] != 0:
+        parcial = ((parcial_hora["green"] + parcial_hora['green branca']) * 100) / (parcial_hora["green"] + parcial_hora['green branca'] + parcial_hora['red'])
+        horaAHora[hora] = parcial
+        manda_msg(f'relatório da ultima hora:\n✅ = {parcial_hora["green"]}\n⚪️ = {parcial_hora["green branca"]}\n⛔️ = {parcial_hora["red"]}\n🎯 = {parcial:.2f}')
+      
+      parcial_hora = {'green': 0, 'green branca': 0, 'red': 0}
 
-        elif len(self.sec0) > 3 and cor == 'branco' or len(self.sec1) > 9 and cor == 'branco' or len(self.sec2) > 5 and cor == 'branco' or len(self.sec3) > 4 and cor == 'branco' or len(self.sec4) > 5 and cor == 'branco':
-            self.telegrambot.enviaMensagem('Green cor branca ✅ 🤑') # previsão certa sendo branco
-            if CONFIGURACAO_DE_TESTE == True: # log ao vivo
-                self.telegrambot.enviaMensagemDeErro('green branco')
-            self.green[f'green{len(self.green)}'] = int(time())
-            self.confirm_cor = ''
-            for i in range(4+1):
-                exec(f'sec{i}.clear()')
+  def manda_sticker(sticker, chats=grupo):
+    global token
+    for chat in chats:
+      get(f'https://api.telegram.org/bot{token}/sendSticker?chat_id={chat}&sticker={sticker}')
 
-    def esperar(self):
-        while True:
-            carregamento = self.navegador.find_element(By.XPATH, '//*[@id="roulette-timer"]/div[1]')
-            try:
-                if carregamento.text.split()[0] == 'Girando' or carregamento.text.split()[0] == 'Girando...':
-                    return
-            except:
-                pass
+  def ns(estrategia):
+    global estrategias
+    estrategias.append({'sequencia': estrategia, 'aposta': ['p', 'b'], 'tipo': 1})
+    estrategias.append({'sequencia': estrategia, 'aposta': ['v', 'b'], 'tipo': 2})
 
-    def jogadas(self, cor):
+  for i1 in range(1, 15):
+    for i2 in range(1, 15):
+      ns([i1, i2])
 
-        def diferente(sec, n, cont=''): # se caso a cor atual for diferente da cor antiga
-            if n+1 <= len(sec) and cont == '':
-                cor if sec[n] != cor else sec.clear()
-                sec.append(cor)
-            elif n+1 <= len(sec) and cont == len(sec):
-                sec.append(cor) if sec[n] != cor else sec.clear()
+  for estrategia in estrategias:
+    logs[str(estrategia['sequencia'])] = {1: {'green': 0, 'green branca': 0, 'red': 0, 'acertividade': 0}, 2: {'green': 0, 'green branca': 0, 'red': 0, 'acertividade': 0}}
 
-        def igual(sec, n, cont=''):
-            if n+1 <= len(sec) and cont == '':
-                cor if sec[n] == cor else sec.clear()
-                sec.append(cor)
-            elif n+1 <= len(sec) and cont == len(sec):
-                sec.append(cor) if sec[n] == cor else sec.clear()
+  def mensagem(msg):
+    while True:
+      try:
+        return get(f"{link}sendMessage?chat_id={chat}&text={msg}").json()
+      except:
+        pass
 
-        def addgale(sec, n, gale): # se caso a cor se repetir, ele repetira a previsão
-            global loss
+  def quantidades_jogadas(chave, n):
+    return int(logs[str(chave)][n]['green'] + logs[str(chave)][n]['green branca'] + logs[str(chave)][n]['red'])
 
-            if len(sec) == n:
-                if sec[-1] == cor:
-                    sec.append(cor)
+  def ouve():
 
-            if len(sec) != 0:
-                if cor != self.confirm_cor and self.confirm_cor != '' and gale == 1 and sec[-1] == 'branco':
-                    sec.append(cor)
+    mensagens = []
 
-            if len(sec) == n+1:
-                if gale <= 2:
-                    self.telegrambot.enviaMensagem(f'Aviso vamos ao {gale}º gale 🍀')
-                if gale == 3:
-                    self.telegrambot.enviaMensagem('Não foi dessa vez, mas mantenha a calma!')
-                    if CONFIGURACAO_DE_TESTE == True: # log ao vivo
-                        self.telegrambot.enviaMensagemDeErro('loss')
-                    self.loss[f'loss{len(self.loss)}'] = int(time())
-                    sec.clear()
+    while True:
+      try:
+        r = get(f'{link}getUpdates').json()
+        resultados = r['result']
+        break
+      except:
+        pass
 
-        def foca(sec, n):
-            n = n-1
-            sec0 = self.sec0
-            sec1 = self.sec1
-            sec2 = self.sec2
-            sec3 = self.sec3
-            sec4 = self.sec4
-            for i in range(4+1):
-                exec(f'if len({sec}) > {n}:\n\tif {sec} == sec{i}:\n\t\tpass\n\telse:\n\t\tsec{i}.clear()')
-                # função encurtada usando exec, ela limpa as outras sequencias caso uma esteja em foco
-                # em foco é quando ela entrou no padrão, para n dar conflito ela é limpada
+    for resultado in resultados:
+      try:
+        mensagens.append({'update_id': resultado['update_id'], 'from_id': resultado['message']['from']['id'], 'chat_id': resultado['message']['chat']['id'], 'text': resultado['message']['text']})
+      except:
+        pass
 
-        foca('sec0', 4)
-        if len(self.sec0) == 0:
-            self.sec0.append(cor)
-        else:
-            if len(self.sec0) <= 3:
-                igual(self.sec0, 0)
-            else:
-                addgale(self.sec0, 6, 3)
-                addgale(self.sec0, 5, 2)
-                addgale(self.sec0, 4, 1)
+    ids = []
+    for mensagem in mensagens:
+      r = comandos(mensagem['text'], mensagem)
+      if r:
+        ids.append(mensagem["update_id"])
 
-        foca('sec1', 9)
-        if len(self.sec1) == 0:
-            self.sec1.append(cor)
-        else:
-            addgale(self.sec1, 12, 3)
-            addgale(self.sec1, 11, 2)
-            addgale(self.sec1, 10, 1)
-            # gale ^
-            diferente(self.sec1, 8, 9)
-            igual(self.sec1, 7, 8)
-            diferente(self.sec1, 6, 7)
-            diferente(self.sec1, 5, 6)
-            igual(self.sec1, 4, 5)
-            diferente(self.sec1, 3, 4)
-            diferente(self.sec1, 2, 3)
-            igual(self.sec1, 1, 2)
-            diferente(self.sec1, 0, 1)
-
-        foca('sec2', 5)
-        if len(self.sec2) == 0:
-            self.sec2.append(cor)
-        else:
-            addgale(self.sec2, 8, 3)
-            addgale(self.sec2, 7, 2)
-            addgale(self.sec2, 6, 1)
-            # gale ^
-            diferente(self.sec2, 4, 5)
-            diferente(self.sec2, 3, 4)
-            diferente(self.sec2, 2, 3)
-            igual(self.sec2, 1, 2)
-            igual(self.sec2, 0, 1)
-
-        foca('sec3', 4) 
-        if len(self.sec3) == 0:
-            self.sec3.append(cor)
-        else:
-            addgale(self.sec3, 7, 3)
-            addgale(self.sec3, 6, 2)
-            addgale(self.sec3, 5, 1)
-            # gale ^
-            diferente(self.sec3, 3, 4)
-            diferente(self.sec3, 2, 3)
-            diferente(self.sec3, 1, 2)
-            diferente(self.sec3, 0, 1)
-            
-        foca('sec4', 6) 
-        if len(self.sec4) == 0:
-            self.sec4.append(cor)
-        else:
-            addgale(self.sec4, 8, 3)
-            addgale(self.sec4, 7, 2)
-            addgale(self.sec4, 6, 1)
-            # gale ^
-            diferente(self.sec4, 5, 6)
-            diferente(self.sec4, 4, 5)
-            diferente(self.sec4, 3, 4)
-            diferente(self.sec4, 2, 3)
-            igual(self.sec4, 1, 2)
-            diferente(self.sec4, 0, 1)
-
-    def aviso(self, cor):
-
-        if len(self.sec0) == 3 or len(self.sec1) == 9 or len(self.sec2) == 5 or len(self.sec3) == 4 or len(self.sec4) == 5:
-            self.telegrambot.enviaMensagem(f'Aviso! possivel entrada, favor aguardar.\nhttps://blaze.com/pt/games/double')
-
-        if len(self.sec0) == 4 or len(self.sec1) == 10 or len(self.sec2) == 6 or len(self.sec3) == 5 or len(self.sec4) == 6:
-            self.telegrambot.enviaMensagem(f'Aviso! entrada confirmada na cor {"🟥" if cor == "preto" else "⬛️"} ({"vermelho" if cor == "preto" else "preto"})')
-            self.confirm_cor = 'vermelho' if cor == 'preto' else 'preto'
-
-        self.esperar()
-
-class Program(object):
-    def __init__(self):
-
-        self.site = Site()
-        self.telegrambot = TelegramBot()
-
+    for idm in ids:
+      while True:
         try:
-            self.site.iniSite()
-        except Exception as error:
-            sys('cls')
-            print('ops, ocorreu um erro ao iniciar o site para você, o bot foi desligado.\ntalvez você esteja sem internet ou passando por complicações, tente novamente mais tarde.')
-            input()
-            exit()
+          r = get(f'{link}getUpdates?offset={int(idm)+1}').json()
+          break
+        except:
+          pass
 
+  def comandos(text, conteudo):
+    global chat
+    global permicao
+    global logs
+    global stop2
+    global versao
+
+    if conteudo['chat_id'] == int(chat):
+
+      if conteudo['from_id'] == 5027889205:
+
+        if text == '/reset-parcial':
+          logs = {}
+
+          for estrategia in estrategias:
+            logs[str(estrategia['sequencia'])] = {1: {'green': 0, 'green branca': 0, 'red': 0, 'acertividade': 0}, 2: {'green': 0, 'green branca': 0, 'red': 0, 'acertividade': 0}}
+
+          mensagem('parcial resetado\nespere até o bot identificar os novos padrões!!')
+
+        if text == '/help-adm':
+          mensagem('comandos restritos:\n\n/reset-parcial - para resetar o parcial do bot\n/atualizar - para atualizar o bot manualmente\n/topadm - mandar um relatório completo pros adm')
+
+        if text == '/atualizar':
+          mensagem('atualizando')
+          stop2 = True
+
+        if text == '/topadm':
+          texto = f'as melhores das {len(logs)*2} estratégias\n'
+          lista = []
+          n = 1
+
+          for log in logs.items():
+            lista.append([log[1][1]['acertividade'] - log[1][1]['red'], n, log[1][1]['green'], log[1][1]['green branca'], log[1][1]['red']])
+            n+=1
+            lista.append([log[1][2]['acertividade'] - log[1][2]['red'], n, log[1][2]['green'], log[1][2]['green branca'], log[1][2]['red']])
+            n+=1
+
+          if not lista:
+            mensagem('poucos dados para fazer o top...\ntente novamente mais tarde')
+            return True
+
+          top = list(sorted(lista, key=lambda dados: int(dados[0]), reverse=True))
+
+          for i in top:
+            texto += f'{i[0]}% - nº:{i[1]}, g:{i[2]}, b:{i[3]}, r:{i[4]}\n'
+
+          while True:
+            try:
+              get(f"{link}sendMessage?chat_id=5027889205&text={texto}")
+              break
+            except:
+              pass
+
+      elif text in ['/reset-parcial', '/help-adm', '/atualizar', '/topadm']:
+        mensagem('você não tem permissão suficiente')
+
+      if text == '/version':
+        mensagem(f'a versão atual é: {versao}')
+
+      if text == '/parcial':
+        parcial = retorna_parcial()
+        mensagem(parcial)
+
+      if text == '/teste':
+        mensagem('funcionando!')
+
+      if text == '/help':
+        mensagem('''os comandos atuais são:
+  /version - para ver a versão atual do bot
+  /teste - para ver se o bot ta funcionando
+  /help - para ver os comandos
+  /parcial - para mostrar o parcial atual do bot
+  /help-adm - para ver os comandos de adm
+  /mudancas - para var o que veio junto a atualização do bot
+  /pravir - mostrar o que estamos pensando pro futuro
+  /sugestao - para você mandar uma sugestão diretamente para os desenvolvedores
+  /ajudaADM - para mandar ajuda diretamente pros ADM
+  ''')
+
+      if text == '/mudancas':
+        mensagem('''o que veio na atialização 5:
+  - sistema de +80%:
+  As estratégias estãram desabilitadas se caso a acertividade das mesmas estiverem menor que 80%.
+  - catalogação das estrategias:
+  Agora é o Bot que ira formar, filtrar, recomendar e mostrar as estratégias que ele achar melhor, juntamente com a atualização de +80%, decidimos o bot formar e filtrar as melhores estratégias, sendo formadas e administradas pelo bot +ou- 400 estratégias.
+  - sistema de aviso automatico de erro:
+  Uma coisa que estava faltando era um aviso de erro, as vezes, nas partes de teste, podemos deixar passar coisas que vão ser vistas tarde demais, e se caso já tiver sido atualizada para o grupo vip, o bot ira mandar uma mensagem automatica para o programador avisando sobre o erro.
+  É claro que é sempre bom a comunidade avisar tambem, podendo dar sempre um /ajudaADM para nos avisar sobre algum eventual problema ou bug
+  - remoção do comando /top
+  Comando onde mostrava as melhores estratégias, porem por conta do grande numero de estratégias, foi modificado para mostrar a acertividade da estratégia em relação a acertividade global.
+  - relatório de hora e dia
+  Agora com um relatório detalhado de hora em hora de como ta o dia, e de dia em dia das melhores horas.
+  - fix de alguns bugs.
+        ''')
+
+      if text == '/pravir':
+        mensagem('''
+  - Estratégias pro branco.
+  - Sistema de SPAN.
+  - Salas de Sinais para outros sites.
+  - Salas de Sianis para diferentes gales.
+  - Bot Aposta Automatica.
+  - Pacotes Adicionais Para Venda:
+  - promoções ou pagamentos:
+  - PDFs e videos para iniciantes:
+  - Canal da Comunidade:
+  - Site do Magic Silfer:
+  - tirando outras atualizações muito importante para facilitar o trabalho dos ADM e melhorar todo o sistema pra vocês, nós estamos constantemente atualizando o bot, mesmo que vocês não vejam :)
+        ''')
+
+      if text.split()[0] == '/sugestao':
+        if text == '/sugestao':
+          mensagem('use o comando da seguinte forma:\n/sugestao\nentão escreva sua sugestão depois do comando, ex:\n/sugestao faça mais comandos')
+        else:
+          while True:
+            try:
+              get(f"{link}sendMessage?chat_id=-838544237&text=sugestão: {text[9:]}")
+              break
+            except:
+              pass
+          mensagem('sugeatão enviada!')
+
+      if text.split()[0] in '/ajudaADM':
+        if text == '/ajudaADM':
+          mensagem('use o comando da seguinte forma:\n/ajudaADM\nentão escreva a ajuda depois do comando, ex:\n/ajudaADM span no grupo vip!')
+        else:
+          while True:
+            try:
+              get(f"{link}sendMessage?chat_id=-838544237&text=ajuda: {text[9:]}")
+              break
+            except:
+              pass
+          mensagem('ajuda enviada!')
+
+      return True
+
+  def atualizador():
+    global jogos, stop2
+    sleep(1)
+    while True:
+      if stop2 == True:
+        break
+      ouve()
+      if verifica_mudanca():
+        jogos = pega_lista()
+        verifica_estrategias()
+
+  def verifica_mudanca():
+    global jogos
+    while True:
+      ouve()
+      if jogos == pega_lista():
+        sleep(1)
+        continue
+      else:
+        return True
+
+  def pega_lista():
+    while True:
+      try:
+        lista = []
+        r = get('https://blaze.com/api/roulette_games/recent')
+        for jogada in r.json():
+          lista.append({'cor': jogada['color'], 'numero': jogada['roll']})
+        return lista
+      except:
+        continue
+
+  def acertividade(chave, n):
+    global logs
+
+    verifica_hora()
+
+    x = logs[chave][n]['green'] + logs[chave][n]['green branca'] + logs[chave][n]['red']
+    logs[chave][n]['acertividade'] = round((logs[chave][n]['green'] + logs[chave][n]['green branca']) * 100 / x, 2)
+
+  def retorna_acertivividade(chave, n):
+    global logs
+
+    if logs[chave][n]['green'] + logs[chave][n]['green branca'] + logs[chave][n]['red'] == 0:
+      parc_estr = '0%'
+    else:
+      x = logs[chave][n]['green'] + logs[chave][n]['green branca'] + logs[chave][n]['red']
+      parc_estr = f"{(logs[chave][n]['green'] + logs[chave][n]['green branca']) * 100 / x:.2f}%"
+
+    return f"{parc_estr}"
+
+  def numero_estrategia(chave, n):
+    p = 0
+    for x in enumerate(logs):
+      if chave == x[1]:
+        return (x[0] + 1 + p) if n == 1 else (x[0] + 2 + p)
+      else:
+        p+=1
+
+  def retorna_parcial():
+    global logs
+    global idParcial
+
+    if idParcial:
+      while True:
         try:
-            while True:
+          get(f'https://api.telegram.org/bot{token}/deleteMessage?chat_id={chat}&message_id={idParcial}')
+          idParcial = None
+          break
+        except:
+          pass
 
-                cor = self.site.pegaCor()
-                self.site.finais(cor)
-                self.site.jogadas(cor)
-                self.site.aviso(cor)        
+    parcial = {'green': 0, 'greenb': 0, 'loss': 0}
 
-                if CONFIGURACAO_DE_TESTE == True: # log ao vivo
-                    self.telegrambot.enviaMensagemDeErro(f'cor: {cor}\nsec0: {self.site.sec0}\nsec1: {self.site.sec1}\nsec2: {self.site.sec2}\nsec3: {self.site.sec3}\nsec4: {self.site.sec4}\n.') # configuração de teste
+    for dado in logs.values():
 
-                self.optmizacaoGreenLoss()
-            
-        except KeyboardInterrupt: # se caso o programa for interrompido pelo usuario
-            print('\ninterrompendo o programa e iniciando o fechamento do dia...')
+      # adicionado
+      dados1 = dado[1]
+      dados2 = dado[2]
+      if dados1['acertividade'] > dados2['acertividade']:
+        dados = dados1
+      else:
+        dados = dados2
 
-            if len(self.site.green) != 0 or len(self.site.loss) != 0:
-                self.telegrambot.enviaMensagem(f'Fechamento do dia:\n{len(self.site.green)} green{"s" if len(self.site.green) > 1 else ""} e {len(self.site.loss)} loss.')
-                print('fechamento enviado, ', end='')
-            else:
-                print('fechamento do dia zerado, ', end='')
+      # \/ removido (apenas essa primeira linha de baixo)
+      #for dados in dado.values():
+      if dados['acertividade'] >= 80 and dados['green'] + dados['green branca'] + dados['red'] >= 10:
+        parcial['green'] += dados['green']
+        parcial['greenb'] += dados['green branca']
+        parcial['loss'] += dados['red']
 
-            print('finalizando programa.')
-            sl(5)
-            exit()
+    if parcial["green"] + parcial['greenb'] + parcial['loss'] != 0:
+      try:
+        porc_parcial = ((parcial["green"] + parcial['greenb']) * 100) / (parcial["green"] + parcial['greenb'] + parcial['loss'])
+        str_parcial = f'Parcial ✅ = {parcial["green"]} ⛔️ = {parcial["loss"]} ⚪️ = {parcial["greenb"]}\n🎯 {porc_parcial:.2f}% de acerto'
+        return str_parcial
+      except:
+        pass
+    else:
+      return 'parcial zerado, nenhum dado resgatado. Tente mais tarde'
 
-        except: # se caso der algum erro inesperado
-            print('ops, algo deu errado...\nvamos tentar reiniciar o programa pra ver se resolve')
+  def entrada(aposta, cor, chave, n):
+    global jogos
+    global token
+    global grupo
+    global stickers
+    global idParcial
+    global parcial_hora
 
-            if len(self.site.green) != 0 or len(self.site.loss) != 0:
-                self.telegrambot.enviaMensagem(f'Fechamento do dia:\n{len(self.site.green)} green{"s" if len(self.site.green) > 1 else ""} e {len(self.site.loss)} loss.')
+    str_aposta = None
 
-            self.telegrambot.enviaMensagemDeErro(f'algo deu errado com o bot, mas já estamos reiniciando pra ver se resolve')
+    if 'v' in aposta:
+      str_aposta = 'vermelha 🔴'
+    elif 'p' in aposta:
+      str_aposta = 'preta ⚫️'
+    elif 'o' in aposta:
+      str_aposta = 'vermelha 🔴' if cor == 2 else 'preta ⚫️'
+    elif 'i' in aposta:
+      str_aposta = 'vermelha 🔴' if cor == 1 else 'preta ⚫️'
 
-            sl(5)
-            sys('python main.py')
-            exit()
+    if 'b' in aposta:
+      str_aposta2 = 'proteja branco ⚪️'
+    else:
+      str_aposta2 = None
 
-    def optmizacaoGreenLoss(self): # como o programa salva os green e loss, essa otimização é apenas para limpar os green e loss salvos a mais de 24 horas
-        tempo = time()
+    if logs[chave][n]['acertividade'] >= 80 and quantidades_jogadas(chave, n) >= 10:
+      manda_msg(f'⚠️ entrada confirmada ⚠️\n🏹 estratégia nº: {numero_estrategia(str(chave), n)} 🏹\n🍀 acertividade: {retorna_acertivividade(chave, n)} 🍀\n✅ = {logs[chave][n]["green"]} ⚪️ = {logs[chave][n]["green branca"]} ⛔️ = {logs[chave][n]["red"]}\napostar na cor {str_aposta}\n{f"sugestão: {str_aposta2}" if str_aposta2 else ""}')
+      manda_msg(f'[💻 Clique Aqui Para Apostar!!!](https://blaze.com/pt/games/double)&disable_web_page_preview=true&parse_mode=MarkdownV2')
 
-        for chave, valor in self.site.green.items():
-            if tempo - valor <= 86400 and tempo - valor >= 0:
-                continue
-            else:
-                del self.site.green[chave]
-                self.optmizacaoGreenLoss()
+    gale = 0
+    green = False
+    gales = []
+    while True:
+      if verifica_mudanca() == True:
+        jogos = pega_lista()
+
+        if 'b' in aposta and jogos[0]['cor'] == 0:
+          green = True
+          logs[chave][n]['green branca'] += 1
+
+        elif 'v' in aposta and jogos[0]['cor'] == 1:
+          green = True
+          logs[chave][n]['green'] += 1
+
+        elif 'p' in aposta and jogos[0]['cor'] == 2:
+          green = True
+          logs[chave][n]['green'] += 1
+
+        elif 'o' in aposta and jogos[0]['cor'] != 0 and jogos[0]['cor'] != cor:
+          green = True
+          logs[chave][n]['green'] += 1
+
+        elif 'i' in aposta and jogos[0]['cor'] != 0 and jogos[0]['cor'] == cor:
+          green = True
+          logs[chave][n]['green'] += 1
+
+        if green == True:
+          if jogos[0]['cor'] == 0:
+            if logs[chave][n]['acertividade'] >= 80 and quantidades_jogadas(chave, n) >= 11:
+              manda_sticker(stickers['green branco'])
+              r = manda_msg(retorna_parcial())
+              idParcial = str(r[0]['result']['message_id'])
+              parcial_hora['green branca'] += 1
+            # manda_msg('🍀💸✅ green branco ✅💸🍀')
+          else:
+            if logs[chave][n]['acertividade'] >= 80 and quantidades_jogadas(chave, n) >= 11:
+              manda_sticker(stickers['green'])
+              r = manda_msg(retorna_parcial())
+              idParcial = str(r[0]['result']['message_id'])
+              parcial_hora['green'] += 1
+            # manda_msg('🍀💸✅ green ✅💸🍀')
+
+          acert = logs[chave][n]['acertividade']
+          acertividade(chave, n)
+          # mudar aqui ainda !!!!!!!!!!!!
+
+          for chat in grupo:
+            for id_msg in gales:
+              while True:
+                try:
+                  get(f'https://api.telegram.org/bot{token}/deleteMessage?chat_id={chat}&message_id={id_msg}')
+                  break
+                except:
+                  pass
+
+          break
+        else:
+          if gale == 1:
+            if logs[chave][n]['acertividade'] >= 80 and quantidades_jogadas(chave, n) >= 10:
+              manda_sticker(stickers['loss'])
+              r = manda_msg(retorna_parcial())
+              idParcial = str(r[0]['result']['message_id'])
+              parcial_hora['red'] += 1
+            # manda_msg('⛔️ red ⛔️')
+            logs[chave][n]['red'] += 1
+
+            acert = logs[chave][n]['acertividade']
+            acertividade(chave, n)
+            if (acert >= 80 and logs[chave][n]['acertividade'] < 80 and quantidades_jogadas(chave, n) >= 11) or (acert == 0 and logs[chave][n]['acertividade'] and logs[chave][n]['red'] != 0 and quantidades_jogadas(chave, n) >= 11):
+              manda_msg(f'🔅 estratégia {numero_estrategia(chave, n)} retirada por acertividade muito baixa 🔅')
+
+            verifica_estrategias()
+
+            for chat in grupo:
+              for id_msg in gales:
+                while True:
+                  try:
+                    get(f'https://api.telegram.org/bot{token}/deleteMessage?chat_id={chat}&message_id={id_msg}')
+                    break
+                  except:
+                    pass
+
+            break
+          else:
+            gale += 1
+            if logs[chave][n]['acertividade'] >= 80 and quantidades_jogadas(chave, n) >= 10:
+              while True:
+                try:
+                  r = manda_msg(f'🔅 sugerimos entrar no {gale}º gale (opcional) 🔅')
+                  break
+                except:
+                  pass
+              gales.append(str(r[0]['result']['message_id']))
+
+  def verifica_estrategias():
+    global estrategias
+    global jogos
+    c1 = None
+    c2 = None
+    detec = True
+
+    for estrategia in estrategias:
+      estrategia['sequencia'].reverse()
+
+      for x in zip(estrategia['sequencia'], jogos):
+
+        if x[0] in ['c1', 'c2']:
+
+          if x[0] == 'c1':
+            if c1 == None:
+              if x[1]['cor'] != 0:
+                if c2 != x[1]['cor']:
+                  c1 = x[1]['cor']
+                else:
+                  detec = False
+                  break    
+              else:
+                detec = False
                 break
-                    
-        for chave, valor in self.site.loss.items():
-            if tempo - valor <= 86400 and tempo - valor >= 0:
-                continue
-            else: 
-                del self.site.loss[chave]
-                self.optmizacaoGreenLoss()
+            else:
+              if c1 != x[1]['cor']:
+                detec = False
                 break
+              elif c1 == x[1]['cor']:
+                continue
 
-Program()
+          elif x[0] == 'c2':
+            if c2 == None:
+              if x[1]['cor'] != 0:
+                if c1 != x[1]['cor']:
+                  c2 = x[1]['cor']
+                else:
+                  detec = False
+                  break
+              else:
+                detec = False
+                break
+            else:
+              if c2 != x[1]['cor']:
+                detec = False
+                break
+              elif c2 == x[1]['cor']:
+                continue
+
+        elif x[0] in ['v', 'p', 'q', 'b']:
+
+          if x[0] == 'v' and x[1]['cor'] == 1:
+            continue
+          elif x[0] == 'p' and x[1]['cor'] == 2:
+            continue
+          elif x[0] == 'q':
+            continue
+          elif x[0] == 'b' and x[1]['cor'] == 0:
+            continue
+          else:
+            detec = False
+            break
+
+        elif x[0] in [*range(1, 15)]:
+          if x[0] == x[1]['numero']:
+            continue
+          else:
+            detec = False
+            break
+
+      estrategia['sequencia'].reverse()
+
+      if detec == True:
+        cor = None
+        if estrategia['sequencia'][-1] == 'b':
+          if estrategia['sequencia'][-2] == 'b':
+            cor = c1 if estrategia['sequencia'][-3] == 'c1' else c2
+          else:
+            cor = c1 if estrategia['sequencia'][-2] == 'c1' else c2
+        else:
+          cor = c1 if estrategia['sequencia'][-1] == 'c1' else c2
+
+        # função pra determinar qual cor vai apostar !!!!!!!!!!!!!!!!!!!!!
+
+        estr = logs[str(estrategia['sequencia'])]
+
+        def calc(n):
+          return estr[n]['green'] + estr[n]['green branca'] * 2 - estr[n]['red'] * 5
+
+        if calc(1) > calc(2):
+          tipo_escolhido = 1
+        elif calc(1) < calc(2):
+          tipo_escolhido = 2
+        elif calc(1) == calc(2):
+          tipo_escolhido = 1
+
+        for estrategia2 in estrategias:
+          if estrategia2['sequencia'] == estrategia['sequencia'] and estrategia2['tipo'] == tipo_escolhido:
+            aposta_escolhida = estrategia2['aposta']
+
+        entrada(aposta_escolhida, cor, str(estrategia['sequencia']), tipo_escolhido)
+        break
+
+      else:
+        c1 = None
+        c2 = None
+        detec = True
+
+  ouve()
+  print('bot iniciado!')
+  manda_msg('bot iniciado!')
+  atualizador()
+
+except Exception as error:
+  while True:
+    try:
+      get(f"{link}sendMessage?chat_id=5027889205&text=erro encontrado no grupo vip:\n{error}\n\nreiniciando o bot").json()
+      break
+    except:
+      pass
